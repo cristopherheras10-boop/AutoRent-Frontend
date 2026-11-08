@@ -1,0 +1,20 @@
+<div class="auth-page">
+  <form class="auth-card" [formGroup]="form" (ngSubmit)="entrar()" aria-labelledby="login-title">
+    <div class="logo">AutoRent</div>
+    <span class="eyebrow">TU MOVILIDAD, MÁS SIMPLE</span>
+    <h1 id="login-title">Bienvenido de vuelta</h1>
+    <p class="muted">Ingresa a tu cuenta para gestionar tus reservas y vehículos.</p>
+    <label for="login-correo">Correo electrónico
+      <input id="login-correo" formControlName="correo" type="email" autocomplete="email" placeholder="nombre@correo.com" required [attr.aria-invalid]="form.controls.correo.touched && form.controls.correo.invalid">
+      @if(form.controls.correo.touched && form.controls.correo.invalid){<small class="field-error">Escribe un correo electrónico válido.</small>}
+    </label>
+    <label for="login-password">Contraseña
+      <input id="login-password" formControlName="password" type="password" autocomplete="current-password" placeholder="Tu contraseña" required [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid">
+      @if(form.controls.password.touched && form.controls.password.invalid){<small class="field-error">La contraseña es obligatoria.</small>}
+    </label>
+    @if(error()){<div class="alert error" role="alert">{{error()}}</div>}
+    <button class="primary" type="submit">Ingresar a AutoRent <span aria-hidden="true">↗</span></button>
+    <div class="auth-links"><a routerLink="/registro">Crear una cuenta</a><a routerLink="/verificar">Verificar correo</a></div>
+    <div class="auth-note"><span aria-hidden="true">⌑</span> Tu cuenta está protegida con autenticación segura.</div>
+  <a class="back-to-catalog" routerLink="/">← Volver al catálogo público</a></form>
+</div>

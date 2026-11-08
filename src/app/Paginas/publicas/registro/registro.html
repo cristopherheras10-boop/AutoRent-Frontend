@@ -1,0 +1,18 @@
+<div class="auth-page">
+  <form class="auth-card wide" [formGroup]="form" (ngSubmit)="registrar()" aria-labelledby="registro-title">
+    <div class="logo">AutoRent</div>
+    <span class="eyebrow">EMPIEZA TU PRÓXIMO VIAJE</span>
+    <h1 id="registro-title">Crea tu cuenta</h1>
+    <p class="muted">Regístrate para continuar con tu reserva y administrar tus viajes.</p>
+    <label for="registro-nombre">Nombre completo<input id="registro-nombre" formControlName="nombre" autocomplete="name" placeholder="Tu nombre y apellido" required [attr.aria-invalid]="form.controls.nombre.touched && form.controls.nombre.invalid"></label>
+    <div class="form-grid auth-form-grid">
+      <label for="registro-cedula">Cédula<input id="registro-cedula" formControlName="cedula" maxlength="10" inputmode="numeric" autocomplete="off" placeholder="0101234567" (input)="digitos($event,'cedula')" required><small>Exactamente 10 números</small></label>
+      <label for="registro-telefono">Teléfono<input id="registro-telefono" formControlName="telefono" maxlength="10" inputmode="numeric" autocomplete="tel" placeholder="0991234567" (input)="digitos($event,'telefono')" required><small>10 números, empieza por 09</small></label>
+    </div>
+    <label for="registro-correo">Correo electrónico<input id="registro-correo" type="email" formControlName="correo" autocomplete="email" placeholder="nombre@correo.com" required [attr.aria-invalid]="form.controls.correo.touched && form.controls.correo.invalid"></label>
+    <label for="registro-password">Contraseña<input id="registro-password" type="password" formControlName="password" autocomplete="new-password" placeholder="Crea una contraseña segura" required [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"><small>Mínimo 8 caracteres, mayúscula, minúscula, número y símbolo.</small></label>
+    @if(error()){<div class="alert error" role="alert">{{error()}}</div>}
+    <button class="primary" type="submit">Crear mi cuenta <span aria-hidden="true">↗</span></button>
+    <div class="auth-links auth-links-center"><span class="muted">¿Ya tienes una cuenta?</span><a routerLink="/login">Iniciar sesión</a></div>
+  <a class="back-to-catalog" routerLink="/">← Volver al catálogo público</a></form>
+</div>

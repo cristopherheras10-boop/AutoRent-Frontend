@@ -1,0 +1,46 @@
+<header class="page-head">
+  <div>
+    <h1>Usuarios</h1>
+    <p>Las cuentas se activan automáticamente al verificar el código. Aquí solo puedes bloquear o reactivar usuarios.</p>
+  </div>
+</header>
+
+@if(error()){<div class="alert error" role="alert">{{error()}}</div>}
+@if(msg()){<div class="alert success" role="status">{{msg()}}</div>}
+
+<section class="panel">
+  <div class="table-wrap">
+    <table><caption class="sr-only">Tabla de usuarios</caption>
+      <thead>
+        <tr>
+          <th scope="col">Nombre</th><th scope="col">Cédula</th><th scope="col">Teléfono</th><th scope="col">Correo</th>
+          <th scope="col">Verificado</th><th scope="col">Estado</th><th scope="col">Rol</th><th scope="col">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(x of lista();track x.id){
+          <tr>
+            <td><b>{{x.nombre}}</b></td>
+            <td>{{x.cedula||'—'}}</td>
+            <td>{{x.telefono||'—'}}</td>
+            <td>{{x.correo}}</td>
+            <td>{{x.verificado?'Sí':'No'}}</td>
+            <td><span class="badge" [class.badge-danger]="x.estado==='BLOQUEADO'">{{x.estado}}</span></td>
+            <td>{{x.rol}}</td>
+            <td>
+              @if(x.rol==='ADMIN'){
+                <span class="protected">🔒 Protegido</span>
+              } @else if(x.estado==='BLOQUEADO'){
+                <button class="small success-btn" (click)="activar(x)">Activar</button>
+              } @else {
+                <button class="small danger" (click)="bloquear(x)">Bloquear</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="8">No hay usuarios.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

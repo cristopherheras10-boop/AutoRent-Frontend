@@ -1,0 +1,152 @@
+<a class="skip-link" href="#contenido-autorent">Saltar al contenido principal</a>
+<div class="landing">
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a routerLink="/" class="site-brand" aria-label="AutoRent, página principal"><span class="site-logo">A<span>↗</span></span><span>auto<strong>rent.</strong></span></a>
+      <nav id="menu-publico" class="site-nav" [class.site-nav-open]="menuAbierto()" aria-label="Navegación principal">
+        <a routerLink="/" (click)="ir('catalogo')">Inicio</a>
+        <a routerLink="/" fragment="catalogo" (click)="ir('catalogo')">Explorar autos</a>
+        @if(seccion()==='catalogo'){<a href="#categorias" (click)="menuAbierto.set(false)">Categorías</a>}
+        @if(seccion()==='catalogo'){<a href="#como-funciona" (click)="menuAbierto.set(false)">Cómo funciona</a>}
+        @if(auth.esAdmin()){
+          <button type="button" class="client-nav-link" [class.client-active]="seccion()==='dashboard'" (click)="ir('dashboard')">Resumen</button>
+          <button type="button" class="client-nav-link" [class.client-active]="seccion()==='reservas'" (click)="ir('reservas')">Reservas</button>
+          <button type="button" class="client-nav-link" [class.client-active]="seccion()==='pagos'" (click)="ir('pagos')">Pagos</button>
+          <button type="button" class="client-nav-link" [class.client-active]="seccion()==='categorias'" (click)="ir('categorias')">Categorías</button>
+          <button type="button" class="client-nav-link" [class.client-active]="seccion()==='mantenimientos'" (click)="ir('mantenimientos')">Mantenimientos</button>
+          <button type="button" class="client-nav-link" [class.client-active]="seccion()==='usuarios'" (click)="ir('usuarios')">Usuarios</button>
+        }
+        @if(auth.esUser()){
+          <button type="button" class="client-nav-link" [class.client-active]="seccion()==='reservas'" (click)="ir('reservas')">Mis reservas</button>
+          <button type="button" class="client-nav-link" [class.client-active]="seccion()==='pagos'" (click)="ir('pagos')">Mis pagos</button>
+        }
+        <div class="mobile-nav-auth">
+          @if(auth.autenticado()){
+            <span class="mobile-nav-user">{{auth.nombre() || 'Mi cuenta'}} · {{auth.esAdmin()?'Administrador':'Cliente'}}</span>
+            <button type="button" class="client-nav-link" (click)="cerrarSesion()">Cerrar sesión</button>
+          }@else{
+            <a routerLink="/login" (click)="menuAbierto.set(false)">Iniciar sesión</a>
+            <a routerLink="/registro" (click)="menuAbierto.set(false)">Crear cuenta</a>
+          }
+        </div>
+      </nav>
+      <div class="site-actions">
+        @if(auth.autenticado()){
+          <app-campana-cliente/>
+          <button class="site-login profile-entry" type="button" (click)="entrarCuenta()" [attr.aria-label]="'Mi cuenta: '+auth.nombre()">◉ {{auth.nombre()||'Mi cuenta'}}</button>
+          <button class="client-logout" type="button" (click)="cerrarSesion()">Salir</button>
+        }@else{
+          <a class="site-login" routerLink="/login">Iniciar sesión</a>
+          <a class="site-cta" routerLink="/registro">Crear cuenta <span aria-hidden="true">↗</span></a>
+        }
+      </div>
+      <button class="site-menu" type="button" (click)="menuAbierto.set(!menuAbierto())" [attr.aria-expanded]="menuAbierto()" aria-controls="menu-publico" aria-label="Abrir o cerrar navegación"><span aria-hidden="true">☰</span></button>
+    </div>
+  </header>
+
+  <main id="contenido-autorent" tabindex="-1">
+    @if(auth.esAdmin() && seccion()==='dashboard'){
+      <section class="client-account-page admin-inline-page site-container"><div class="client-account-intro"><span class="section-kicker">ADMINISTRACIÓN</span><h1>Resumen general</h1><p>Gestiona tu negocio sin salir de AutoRent.</p></div><app-dashboard/></section>
+    }@else if(auth.autenticado() && seccion()==='reservas'){
+      <section class="client-account-page site-container"><div class="client-account-intro"><span class="section-kicker">MI CUENTA</span><h1>Mis reservas</h1><p>Gestiona tus solicitudes sin salir de AutoRent.</p><button type="button" class="account-back-link" (click)="ir('catalogo')">← Volver al catálogo</button></div><app-reservas/></section>
+    }@else if(auth.autenticado() && seccion()==='pagos'){
+      <section class="client-account-page site-container"><div class="client-account-intro"><span class="section-kicker">MI CUENTA</span><h1>Mis pagos</h1><p>Consulta tus pagos sin abandonar el catálogo de AutoRent.</p><button type="button" class="account-back-link" (click)="ir('reservas')">← Ver reservas</button></div><app-pagos/></section>
+    }@else if(auth.esAdmin() && seccion()==='categorias'){
+      <section class="client-account-page admin-inline-page site-container"><div class="client-account-intro"><span class="section-kicker">ADMINISTRACIÓN</span><h1>Categorías</h1><p>Organiza tu flota desde la misma página.</p></div><app-categorias/></section>
+    }@else if(auth.esAdmin() && seccion()==='mantenimientos'){
+      <section class="client-account-page admin-inline-page site-container"><div class="client-account-intro"><span class="section-kicker">ADMINISTRACIÓN</span><h1>Mantenimientos</h1><p>Controla el estado y las revisiones de tus vehículos.</p></div><app-mantenimientos/></section>
+    }@else if(auth.esAdmin() && seccion()==='usuarios'){
+      <section class="client-account-page admin-inline-page site-container"><div class="client-account-intro"><span class="section-kicker">ADMINISTRACIÓN</span><h1>Usuarios</h1><p>Gestiona las cuentas y sus permisos.</p></div><app-usuarios/></section>
+    }@else{
+    <section class="site-hero" id="inicio">
+      <div class="hero-content">
+        <div class="hero-eyebrow"><span class="hero-dot"></span> TU PRÓXIMO VIAJE COMIENZA AQUÍ</div>
+        <h1>El camino es tuyo.<br><em>El auto también.</em></h1>
+        <p>Encuentra el vehículo perfecto para cada aventura. Explora nuestra flota, compara precios y elige a tu ritmo.</p>
+        <div class="hero-buttons"><a class="site-cta hero-cta" href="#catalogo">Explorar vehículos <span aria-hidden="true">↗</span></a><a class="hero-link" href="#como-funciona">Descubre cómo funciona <span aria-hidden="true">→</span></a></div>
+        <div class="hero-metrics"><div><b>{{vehiculos().length}}</b><small>Vehículos disponibles</small></div><span></span><div><b>Fácil</b><small>Reserva a tu ritmo</small></div><span></span><div><b>24/7</b><small>Explora cuando quieras</small></div></div>
+      </div>
+      <div class="hero-visual" aria-hidden="true"><div class="hero-photo"></div><div class="hero-glow"></div><div class="hero-visual-tag"><span>✦</span><div><b>Tu próxima aventura</b><small>Empieza con la elección correcta</small></div></div></div>
+    </section>
+
+    <section class="site-container categories-section" id="categorias" aria-labelledby="categorias-titulo">
+      <div class="section-intro"><div><span class="section-kicker">ENCUENTRA TU ESTILO</span><h2 id="categorias-titulo">Un auto para <em>cada ocasión.</em></h2><p>Pasa el cursor, usa Tab o toca una categoría para conocerla.</p></div></div>
+      <div class="category-tiles">
+        <button type="button" class="category-tile" [class.selected]="categoriaActiva()===0" (click)="categoriaActiva.set(0)"><span class="category-emoji" aria-hidden="true">✦</span><b>Todos los autos</b><span class="category-sub">Explora nuestra flota</span><span class="category-explanation">Todas las opciones disponibles en un solo lugar.</span></button>
+        @for(c of categorias();track c.id){
+          <button type="button" class="category-tile" [class.selected]="categoriaActiva()===c.id" [attr.aria-pressed]="categoriaActiva()===c.id" (click)="categoriaActiva.set(c.id)">
+            <span class="category-emoji" aria-hidden="true">{{c.nombre.toLowerCase().includes('suv')?'◈':c.nombre.toLowerCase().includes('pickup')?'▰':c.nombre.toLowerCase().includes('premium')?'✧':'◇'}}</span>
+            <b>{{c.nombre}}</b><span class="category-sub">Descubre esta categoría</span>
+            <span class="category-explanation">{{c.descripcion || 'Vehículos seleccionados para esta categoría.'}}</span>
+          </button>
+        }
+      </div>
+    </section>
+
+    <section class="catalog-section" id="catalogo" aria-labelledby="catalogo-titulo">
+      <div class="site-container">
+        <div class="section-intro catalog-intro"><div><span class="section-kicker">NUESTRA COLECCIÓN</span><h2 id="catalogo-titulo">Encuentra tu <em>próximo auto.</em></h2><p>Descubre tu próximo viaje entre modelos seleccionados para cada ocasión.</p></div><span class="result-tag">{{visibles().length}} resultados</span></div>
+        @if(auth.esAdmin()){
+          <div class="admin-catalog-tools"><div><strong>Administrar flota</strong><p>Los vehículos se gestionan aquí mismo, sin un catálogo duplicado.</p></div><div class="actions"><button type="button" class="site-cta" (click)="abrirCrearVehiculo()">＋ Agregar vehículo</button><button type="button" class="secondary" (click)="ir('categorias')">Categorías</button></div></div>
+          <app-vehiculos [soloFormulario]="true" (cambio)="cargar()" />
+        }
+        <div class="catalog-toolbar"><label class="catalog-search"><span aria-hidden="true">⌕</span><span class="sr-only">Buscar por marca o modelo</span><input type="search" placeholder="Buscar marca, modelo o año..." [value]="buscando()" (input)="filtrar($event)"></label><div class="filter-pills"><button type="button" [class.active]="categoriaActiva()===0" (click)="categoriaActiva.set(0)">Todos</button>@for(c of categorias();track c.id){<button type="button" [class.active]="categoriaActiva()===c.id" (click)="categoriaActiva.set(c.id)">{{c.nombre}}</button>}</div></div>
+        @if(error()) {<div class="site-alert site-alert-error" role="alert"><span class="alert-symbol" aria-hidden="true">!</span><div><strong>No pudimos cargar los vehículos</strong><p>{{error()}}. Comprueba tu conexión y vuelve a intentarlo.</p></div><button type="button" (click)="cargar()">Reintentar</button></div>}
+        @if(cargando()){<div class="site-loading" role="status"><span class="spinner"></span> Cargando vehículos desde la API...</div>}
+        @else if(!error()) {
+          <div class="public-car-grid">
+            @for(v of visibles();track v.id){
+              <article class="public-car-card" role="button" tabindex="0" (click)="abrir(v)" (keydown.enter)="abrir(v)" (keydown.space)="abrir(v);$event.preventDefault()" [attr.aria-label]="'Ver fotografías, características y reservar '+v.marca+' '+v.modelo">
+                <div class="public-car-photo">
+                  @if(v.imagenUrl){<img [src]="v.imagenUrl" [alt]="v.marca+' '+v.modelo+' en el catálogo de AutoRent'" loading="lazy" (error)="errorFoto($event)">}
+                  @else {<div class="public-no-image" aria-label="Vehículo sin fotografía">🚙</div>}
+                  <span class="availability"><span></span> {{v.estado==='DISPONIBLE'?'Disponible':v.estado}}</span>
+                  <button type="button" class="favorite-btn" (click)="favorito(v.id);$event.stopPropagation()" [attr.aria-label]="favoritos().includes(v.id)?'Quitar de favoritos':'Marcar como favorito'" [attr.aria-pressed]="favoritos().includes(v.id)">{{favoritos().includes(v.id)?'♥':'♡'}}</button>
+                </div>
+                <div class="public-car-body"><span class="car-category">{{v.categoriaNombre}}</span><h3>{{v.marca}} {{v.modelo}}</h3><div class="car-meta"><span>◷ {{v.anio}}</span><span>◈ {{v.color}}</span><span>▧ {{v.placa}}</span></div><div class="car-bottom"><div class="car-price"><strong>${{v.tarifaDiaria}}</strong><span>/ día</span></div><span class="view-btn" aria-hidden="true">Ver detalles <span>↗</span></span></div>
+                  @if(auth.esAdmin()){
+                    <div class="admin-card-actions"><button type="button" class="secondary" (click)="abrirEditarVehiculo(v);$event.stopPropagation()">Editar vehículo</button><button type="button" class="secondary danger" (click)="eliminarVehiculo(v);$event.stopPropagation()">Eliminar</button></div>
+                  }
+                </div>
+              </article>
+            } @empty {<div class="public-empty"><b>No encontramos vehículos con ese filtro.</b><p>Prueba otra búsqueda o elige «Todos».</p><button type="button" (click)="categoriaActiva.set(0);buscando.set('')">Limpiar filtros</button></div>}
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="site-container trust-section" aria-label="Ventajas de AutoRent">
+      <div class="trust-heading"><span class="section-kicker">PENSADO PARA TI</span><h2>Una experiencia de alquiler <em>más sencilla.</em></h2><p>Información clara antes de elegir tu próximo vehículo.</p></div>
+      <div class="trust-grid">
+        <article><span aria-hidden="true">⌕</span><h3>Explora libremente</h3><p>Compara modelos y tarifas sin registrarte ni entregar datos personales.</p></article>
+        <article><span aria-hidden="true">▣</span><h3>Información visible</h3><p>Consulta fotografías, categoría, año y estado antes de solicitar una reserva.</p></article>
+        <article><span aria-hidden="true">♿</span><h3>Accesible para todos</h3><p>Ajusta el contraste, amplía el texto y reduce las animaciones desde cualquier página.</p></article>
+      </div>
+    </section>
+    <section class="how-section site-container" id="como-funciona"><span class="section-kicker">SENCILLO DESDE EL PRINCIPIO</span><h2>Tu viaje en <em>tres pasos.</em></h2><div class="how-grid"><article><span>01</span><h3>Explora sin registrarte</h3><p>Consulta modelos, precios, fotografías y categorías libremente.</p></article><article><span>02</span><h3>Elige el vehículo</h3><p>Revisa sus características y presiona reservar cuando estés listo.</p></article><article><span>03</span><h3>Crea tu cuenta y reserva</h3><p>Inicia sesión, selecciona tus fechas y envía la solicitud a AutoRent.</p></article></div></section>
+    <section class="site-container faq-section" aria-labelledby="faq-title">
+      <span class="section-kicker">PREGUNTAS FRECUENTES</span><h2 id="faq-title">Antes de comenzar</h2>
+      <details><summary>¿Necesito una cuenta para ver los carros?</summary><p>No. Puedes explorar el catálogo y consultar sus detalles sin iniciar sesión.</p></details>
+      <details><summary>¿Cuándo debo registrarme?</summary><p>Solamente cuando quieras realizar una reserva. Conservamos el vehículo seleccionado durante ese proceso.</p></details>
+      <details><summary>¿Cómo puedo mejorar la lectura?</summary><p>Utiliza el botón Accesibilidad para activar el contraste alto, ampliar el texto o reducir animaciones.</p></details>
+    </section>
+    }
+  </main>
+  <footer class="site-footer"><div class="site-container footer-inner"><a routerLink="/" class="site-brand"><span class="site-logo">A<span>↗</span></span><span>auto<strong>rent.</strong></span></a><p>Tu movilidad, a tu manera.</p><span>© AutoRent · Tu viaje empieza aquí</span></div></footer>
+</div>
+
+@if(detalle();as v){
+  <div class="detail-backdrop" (click)="cerrar()"></div>
+  <section class="detail-dialog" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <div class="detail-header"><span>DETALLES DEL VEHÍCULO</span><button type="button" (click)="cerrar()" aria-label="Cerrar detalles">✕</button></div>
+    <div class="detail-gallery">
+      @if(fotos(v).length){@for(foto of [fotos(v)[fotoActual()]]; track foto){<img [src]="foto" [alt]="'Foto '+(fotoActual()+1)+' de '+v.marca+' '+v.modelo" (error)="errorFoto($event)">}}
+      @else{<div class="public-no-image">🚙</div>}
+      @if(fotos(v).length>1){<button type="button" class="gallery-prev" (click)="siguiente(-1)" aria-label="Foto anterior">‹</button><button type="button" class="gallery-next" (click)="siguiente(1)" aria-label="Foto siguiente">›</button>}
+    </div>
+    <div class="detail-content"><span class="car-category">{{v.categoriaNombre}}</span><h2 id="detail-title">{{v.marca}} {{v.modelo}}</h2><p>{{v.anio}} · {{v.color}} · {{v.placa}} · {{v.estado}}</p><div class="detail-thumbs">@for(foto of fotos(v);track foto;let i=$index){<button type="button" [class.current]="fotoActual()===i" (click)="fotoActual.set(i)" [attr.aria-label]="'Ver fotografía '+(i+1)"><img [src]="foto" [alt]="'Miniatura '+(i+1)" (error)="errorFoto($event)"></button>}</div></div>
+    <div class="detail-footer"><div class="car-price"><strong>${{v.tarifaDiaria}}</strong><span>/ día</span></div>@if(auth.esAdmin()){
+      <button type="button" class="site-cta" (click)="abrirEditarVehiculo(v)">Editar este vehículo <span aria-hidden="true">↗</span></button>
+    }@else{<button type="button" class="site-cta" (click)="reservar(v)">Reservar este vehículo <span aria-hidden="true">↗</span></button>}</div>
+  </section>
+}

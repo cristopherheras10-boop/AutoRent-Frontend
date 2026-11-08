@@ -1,0 +1,53 @@
+<a class="skip-link" href="#contenido-principal">Saltar al contenido principal</a>
+<div class="shell">
+  <aside id="menu-autorent" class="sidebar" [class.menu-open]="menuAbierto" aria-label="Navegación principal">
+    <a class="brand" routerLink="dashboard" (click)="cerrarMenu()" aria-label="AutoRent, ir al inicio">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span class="brand-copy"><strong>AutoRent</strong><small>GESTIÓN DE FLOTA</small></span>
+    </a>
+
+    <div class="userbox">
+      <span class="avatar" aria-hidden="true">{{(auth.nombre() || 'U').charAt(0).toUpperCase()}}</span>
+      <span class="user-copy"><b>{{auth.nombre()}}</b><small>{{auth.rol()==='ADMIN'?'Administrador':'Cliente'}}</small></span>
+      <span class="online-dot" title="Sesión activa" aria-label="Sesión activa"></span>
+    </div>
+
+    <div class="nav-caption">MENÚ PRINCIPAL</div>
+    <nav>
+      @if(auth.esAdmin()){<a routerLink="/" (click)="cerrarMenu()"><span class="nav-icon" aria-hidden="true">↗</span><span>Ver catálogo</span></a>}
+      <a routerLink="dashboard" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="cerrarMenu()"><span class="nav-icon" aria-hidden="true">▦</span><span>Dashboard</span></a>
+      @if(auth.esAdmin()){
+        <a routerLink="categorias" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="cerrarMenu()"><span class="nav-icon" aria-hidden="true">◇</span><span>Categorías</span></a>
+      }
+      <a routerLink="vehiculos" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="cerrarMenu()"><span class="nav-icon" aria-hidden="true">▰</span><span>{{auth.esAdmin()?'Vehículos':'Explorar vehículos'}}</span></a>
+      <a routerLink="reservas" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="cerrarMenu()"><span class="nav-icon" aria-hidden="true">▣</span><span>{{auth.esAdmin()?'Reservas':'Mis reservas'}}</span></a>
+      <a routerLink="pagos" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="cerrarMenu()"><span class="nav-icon" aria-hidden="true">＄</span><span>{{auth.esAdmin()?'Pagos':'Mis pagos'}}</span></a>
+      @if(auth.esAdmin()){
+        <div class="nav-caption nav-caption-spaced">ADMINISTRACIÓN</div>
+        <a routerLink="mantenimientos" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="cerrarMenu()"><span class="nav-icon" aria-hidden="true">⚙</span><span>Mantenimientos</span></a>
+        <a routerLink="usuarios" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="cerrarMenu()"><span class="nav-icon" aria-hidden="true">♙</span><span>Usuarios</span></a>
+      }
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-help"><span aria-hidden="true">✦</span><div><b>Todo bajo control</b><small>Gestiona tu movilidad en un solo lugar.</small></div></div>
+      <button class="logout" type="button" (click)="salir()"><span aria-hidden="true">↪</span> Cerrar sesión</button>
+      <small class="sidebar-version">AUTORENT · SISTEMA DE ALQUILER</small>
+    </div>
+  </aside>
+
+  <button class="mobile-scrim" type="button" aria-label="Cerrar menú" (click)="cerrarMenu()" [class.visible]="menuAbierto"></button>
+
+  <main class="content" id="contenido-principal" tabindex="-1">
+    <div class="topbar">
+      <button class="menu-toggle" type="button" (click)="alternarMenu()" [attr.aria-expanded]="menuAbierto" aria-controls="menu-autorent" aria-label="Abrir o cerrar menú"><span></span><span></span><span></span></button>
+      <div class="topbar-context"><span class="eyebrow">BIENVENIDO A AUTORENT</span><strong>Tu espacio personal</strong></div>
+      <div class="topbar-right">
+        <app-campana-cliente/>
+        <span class="system-status"><span></span> Sesión activa</span><div class="topbar-avatar" aria-hidden="true">{{(auth.nombre() || 'U').charAt(0).toUpperCase()}}</div>
+      </div>
+    </div>
+    <div class="page-content"><router-outlet /></div>
+    <footer class="app-footer"><span>© AutoRent</span><span>Movilidad simple. Gestión inteligente.</span></footer>
+  </main>
+</div>

@@ -1,0 +1,26 @@
+﻿# Dependencias
+node_modules/
+
+# Archivos generados por Angular
+.angular/
+dist/
+out-tsc/
+
+# Archivos de entorno y credenciales
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Archivos temporales
+*.log
+.DS_Store
+Thumbs.db
+
+# Configuracion local de Vercel
+.vercel/
+
+# Archivos del editor
+.vscode/
+.idea/

@@ -1,0 +1,42 @@
+<header class="page-head">
+  <div><h1>Categorías de vehículos</h1><p>Explora cada categoría y consulta los vehículos asociados.</p></div>
+  <button type="button" class="primary" (click)="nuevo()">＋ Agregar categoría</button>
+</header>
+@if(error()){<div class="alert error" role="alert">{{error()}}</div>}
+@if(msg()){<div class="alert success" role="status">{{msg()}}</div>}
+<div class="admin-category-grid">
+  @for(c of lista();track c.id){
+    <article class="admin-category-card" [class.selected]="seleccionada()?.id===c.id">
+      <button type="button" class="admin-category-select" (click)="seleccionar(c)" [attr.aria-expanded]="seleccionada()?.id===c.id">
+        <span class="category-icon" aria-hidden="true">◇</span>
+        <strong>{{c.nombre}}</strong>
+        <span>{{c.descripcion || 'Sin descripción'}}</span>
+        <small>{{carrosDe(c).length}} vehículos · {{c.activa?'Activa':'Inactiva'}}</small>
+        <span class="category-view">{{seleccionada()?.id===c.id?'Ocultar vehículos':'Ver vehículos →'}}</span>
+      </button>
+      <div class="actions"><button type="button" class="small" (click)="editar(c)">Editar</button><button type="button" class="small danger" (click)="eliminar(c)">Eliminar</button></div>
+    </article>
+  } @empty {<div class="panel">Todavía no hay categorías.</div>}
+</div>
+@if(seleccionada();as c){
+  <section class="panel category-results" aria-live="polite">
+    <div class="page-head"><div><h2>Vehículos de {{c.nombre}}</h2><p>{{c.descripcion}}</p></div><a class="primary" [routerLink]="['/']" [queryParams]="{categoria:c.id}">Ver en el catálogo →</a></div>
+    <div class="category-car-list">
+      @for(v of carrosDe(c);track v.id){
+        <div class="category-car-row"><span class="category-car-icon" aria-hidden="true">🚗</span><div><strong>{{v.marca}} {{v.modelo}}</strong><small>{{v.anio}} · {{v.color}} · {{v.estado}}</small></div><b>${{v.tarifaDiaria}} / día</b></div>
+      } @empty {<p>Esta categoría todavía no tiene vehículos asociados.</p>}
+    </div>
+  </section>
+}
+@if(formularioAbierto()){
+  <div class="dialog-backdrop" (click)="cancelar()"></div>
+  <section class="panel dialog-panel" role="dialog" aria-modal="true" aria-labelledby="titulo-categoria">
+    <div class="form-title"><div><h2 id="titulo-categoria">{{edit?'Editar':'Agregar'}} categoría</h2><p class="muted">Describe el tipo de vehículo para ayudar a tus clientes.</p></div><button type="button" class="secondary dialog-close" (click)="cancelar()" aria-label="Cerrar formulario">✕</button></div>
+    <form class="form-grid" [formGroup]="form" (ngSubmit)="guardar()">
+      <label>Nombre<input formControlName="nombre" placeholder="Ej. SUV">@if(form.controls.nombre.touched&&form.controls.nombre.invalid){<small class="field-error">Ingresa al menos 3 caracteres.</small>}</label>
+      <label class="span2">Descripción<input formControlName="descripcion" placeholder="Espacioso, ideal para familias">@if(form.controls.descripcion.touched&&form.controls.descripcion.invalid){<small class="field-error">Describe la categoría con al menos 5 caracteres.</small>}</label>
+      <label class="check"><input type="checkbox" formControlName="activa"> Categoría activa</label>
+      <div class="actions span2"><button class="primary" [disabled]="form.invalid">Guardar categoría</button><button type="button" class="secondary" (click)="cancelar()">Cancelar</button></div>
+    </form>
+  </section>
+}

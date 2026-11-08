@@ -1,0 +1,15 @@
+<div class="auth-page">
+  <form class="auth-card" [formGroup]="form" (ngSubmit)="verificar()" aria-labelledby="verificar-title">
+    <div class="logo">AutoRent</div>
+    <span class="eyebrow">UN PASO MÁS</span>
+    <h1 id="verificar-title">Verifica tu correo</h1>
+    <p class="muted">Ingresa el correo y el código de 6 dígitos que recibiste.</p>
+    <label for="verificar-correo">Correo electrónico<input id="verificar-correo" formControlName="correo" type="email" autocomplete="email" placeholder="nombre@correo.com" required></label>
+    <label for="verificar-codigo">Código de verificación<input id="verificar-codigo" formControlName="codigo" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" required></label>
+    @if(msg()){<div class="alert success" role="status">{{msg()}}</div>}
+    @if(error()){<div class="alert error" role="alert">{{error()}}</div>}
+    <button class="primary" type="submit">Verificar correo</button>
+    <button class="secondary" type="button" (click)="reenviar()">Reenviar código</button>
+    <a routerLink="/login">Volver a iniciar sesión</a>
+  <a class="back-to-catalog" routerLink="/">← Volver al catálogo público</a></form>
+</div>

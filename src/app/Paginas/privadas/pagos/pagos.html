@@ -1,0 +1,67 @@
+<header class="page-head">
+  <div>
+    <h1>{{ auth.esAdmin() ? 'Pagos' : 'Mis pagos' }}</h1>
+    <p>{{ auth.esAdmin() ? 'Registra y controla pagos de reservas.' : 'Consulta los pagos asociados a tus reservas.' }}</p>
+  </div>
+</header>
+
+@if (auth.esAdmin()) {
+  <section class="panel payment-panel">
+    <h2>{{ edit !== null ? 'Editar pago' : 'Registrar pago' }}</h2>
+    <p class="payment-help">El importe se obtiene automáticamente de la reserva para evitar errores de cobro.</p>
+    <form class="form-grid" [formGroup]="form" (ngSubmit)="guardar()">
+      <label>Reserva
+        <select formControlName="reservaId" required>
+          <option [ngValue]="0">Selecciona una reserva</option>
+          @for (r of reservas(); track r.id) {
+            <option [ngValue]="r.id">#{{ r.id }} · {{ r.usuarioNombre }} · {{ r.vehiculo }} · ${{ r.total }}</option>
+          }
+        </select>
+      </label>
+      <label>Fecha del pago
+        <input type="date" formControlName="fechaPago">
+      </label>
+      <div class="payment-total" aria-live="polite">
+        <span>Importe de la reserva</span>
+        <strong>{{ montoCalculado() !== null ? '$' + montoCalculado() : 'Selecciona una reserva' }}</strong>
+        <small>Calculado automáticamente. No se puede modificar.</small>
+      </div>
+      <label>Método
+        <select formControlName="metodoPago">
+          <option value="EFECTIVO">Efectivo</option>
+          <option value="TARJETA">Tarjeta</option>
+          <option value="TRANSFERENCIA">Transferencia</option>
+        </select>
+      </label>
+      <label>Estado
+        <select formControlName="estado">
+          <option value="PENDIENTE">Pendiente</option>
+          <option value="PAGADO">Pagado</option>
+          <option value="REEMBOLSADO">Reembolsado</option>
+        </select>
+      </label>
+      <div class="actions">
+        <button type="submit" class="primary" [disabled]="guardando() || form.invalid || montoCalculado() === null">
+          {{ guardando() ? 'Guardando...' : edit !== null ? 'Actualizar pago' : 'Registrar pago' }}
+        </button>
+        @if (edit !== null) { <button type="button" class="secondary" (click)="cancelar()">Cancelar</button> }
+      </div>
+    </form>
+  </section>
+}
+
+@if (error()) { <div class="alert error" role="alert">{{ error() }}</div> }
+<section class="panel">
+  <div class="table-wrap" role="region" aria-label="Tabla de pagos" tabindex="0">
+    <table>
+      <caption class="sr-only">Pagos registrados</caption>
+      <thead><tr><th>ID</th><th>Reserva</th><th>Cliente</th><th>Vehículo</th><th>Fecha</th><th>Monto</th><th>Método</th><th>Estado</th>@if (auth.esAdmin()) { <th>Acciones</th> }</tr></thead>
+      <tbody>
+        @for (x of lista(); track x.id) {
+          <tr><td>{{ x.id }}</td><td>#{{ x.reservaId }}</td><td>{{ x.usuario }}</td><td>{{ x.vehiculo }}</td><td>{{ x.fechaPago }}</td><td>${{ x.monto }}</td><td>{{ x.metodoPago }}</td><td><span class="badge">{{ x.estado }}</span></td>
+          @if (auth.esAdmin()) { <td><button class="small" (click)="editar(x)">Editar</button><button class="small danger" (click)="eliminar(x)">Eliminar</button></td> }</tr>
+        } @empty { <tr><td colspan="9">No hay pagos registrados.</td></tr> }
+      </tbody>
+    </table>
+  </div>
+</section>

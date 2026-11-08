@@ -1,0 +1,54 @@
+<header class="page-head dashboard-heading">
+  <div>
+    <span class="eyebrow">RESUMEN GENERAL</span>
+    <h1>Hola, {{auth.nombre()}} <span class="wave" aria-hidden="true">✦</span></h1>
+    <p>{{auth.esAdmin()?'Aquí tienes una vista rápida del estado de tu operación.':'Todo listo para tu próximo viaje. Encuentra tu vehículo ideal.'}}</p>
+  </div>
+  <div class="date-chip"><span aria-hidden="true">◷</span> Tu espacio AutoRent</div>
+</header>
+
+<section class="dashboard-hero" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <span class="hero-kicker">{{auth.esAdmin()?'CENTRO DE OPERACIONES':'TU PRÓXIMO DESTINO'}}</span>
+    <h2 id="hero-title">{{auth.esAdmin()?'Tu flota, siempre en movimiento.':'Muévete a tu manera.'}}</h2>
+    <p>{{auth.esAdmin()?'Controla vehículos, reservas y servicios desde un solo panel.':'Explora vehículos disponibles y organiza tu próxima aventura con facilidad.'}}</p>
+    <div class="hero-actions">
+      <a class="hero-primary" routerLink="/" [queryParams]="{seccion:'catalogo'}">{{auth.esAdmin()?'Gestionar vehículos':'Explorar vehículos'}} <span aria-hidden="true">↗</span></a>
+      <a class="hero-secondary" routerLink="/" [queryParams]="{seccion:'reservas'}">{{auth.esAdmin()?'Ver reservas':'Mis reservas'}}</a>
+    </div>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+    <div class="art-glow"></div><div class="art-car">🚘</div>
+    <div class="art-tag"><span>✦</span><div><b>AutoRent</b><small>Listo para salir</small></div></div>
+  </div>
+  <div class="hero-decoration" aria-hidden="true">AR</div>
+</section>
+
+@if(error()){
+  <div class="alert error" role="alert"><strong>No se pudo cargar el resumen.</strong><span>{{error()}}</span><button type="button" class="secondary" (click)="cargar()">Reintentar</button></div>
+}
+
+<section class="section-heading"><div><span class="eyebrow">INDICADORES</span><h2>{{auth.esAdmin()?'Resumen de la operación':'Tu actividad'}}</h2></div><span class="live-label"><span></span> Datos de la API</span></section>
+@if(loading()){
+  <div class="loading-panel" role="status"><span class="spinner"></span><span>Cargando información de AutoRent…</span></div>
+} @else {
+  <div class="cards dashboard-stats">
+    @for(c of cards();track c.label;let i=$index){
+      <article class="stat" [class.stat-tone-0]="i===0" [class.stat-tone-1]="i===1" [class.stat-tone-2]="i===2" [class.stat-tone-3]="i===3" [class.stat-tone-4]="i===4">
+        <div class="stat-top"><span class="stat-icon" aria-hidden="true">{{c.icon}}</span><span class="stat-arrow" aria-hidden="true">↗</span></div>
+        <div class="stat-value">{{c.valor}}</div><div class="stat-label">{{c.label}}</div>
+        <div class="stat-foot"><span class="stat-foot-dot"></span> Actualizado al consultar</div>
+      </article>
+    }
+  </div>
+}
+
+<section class="section-heading quick-heading"><div><span class="eyebrow">ACCESOS DIRECTOS</span><h2>¿Qué necesitas hacer?</h2></div></section>
+<div class="quick-grid">
+  <a class="quick-card" routerLink="/" [queryParams]="{seccion:'catalogo'}"><span class="quick-icon quick-blue" aria-hidden="true">▰</span><span class="quick-copy"><b>{{auth.esAdmin()?'Administrar vehículos':'Ver vehículos'}}</b><small>{{auth.esAdmin()?'Actualiza el catálogo y sus tarifas.':'Encuentra opciones para tu próximo viaje.'}}</small></span><span class="quick-arrow" aria-hidden="true">↗</span></a>
+  <a class="quick-card" routerLink="/" [queryParams]="{seccion:'reservas'}"><span class="quick-icon quick-violet" aria-hidden="true">▣</span><span class="quick-copy"><b>{{auth.esAdmin()?'Gestionar reservas':'Consultar reservas'}}</b><small>{{auth.esAdmin()?'Revisa y actualiza solicitudes.':'Consulta fechas y estados de tus reservas.'}}</small></span><span class="quick-arrow" aria-hidden="true">↗</span></a>
+  <a class="quick-card" routerLink="/" [queryParams]="{seccion:'pagos'}"><span class="quick-icon quick-green" aria-hidden="true">＄</span><span class="quick-copy"><b>{{auth.esAdmin()?'Controlar pagos':'Revisar mis pagos'}}</b><small>{{auth.esAdmin()?'Consulta los movimientos registrados.':'Revisa los pagos de tus reservas.'}}</small></span><span class="quick-arrow" aria-hidden="true">↗</span></a>
+</div>
+
+<section class="notice-strip"><span class="notice-icon" aria-hidden="true">✦</span><div><b>Una experiencia más simple</b><p>{{auth.esAdmin()?'Mantén actualizados los datos de la flota para facilitar la gestión de cada reserva.':'Revisa el estado de tus reservas y los detalles de pago desde sus respectivos módulos.'}}</p></div></section>

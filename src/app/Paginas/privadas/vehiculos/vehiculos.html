@@ -1,0 +1,178 @@
+@if(!soloFormulario){
+<header class="page-head">
+  <div>
+    <h1>{{auth.esAdmin()?'Catálogo de vehículos':'Vehículos disponibles'}}</h1>
+    <p>{{auth.esAdmin()?'Administra carros, precios, estados e imágenes.':'Elige el vehículo que más te guste y realiza tu reserva.'}}</p>
+  </div>
+  @if(auth.esAdmin()){
+    <button type="button" class="primary" (click)="nuevo()">＋ Agregar vehículo</button>
+  }
+</header>
+<div class="catalog-filter-bar">
+    <label for="filtro-categoria-admin">Filtrar vehículos por categoría</label>
+    <select id="filtro-categoria-admin" [value]="categoriaFiltro()" (change)="categoriaFiltro.set(+$any($event.target).value)">
+      <option value="0">Todas las categorías</option>
+      @for(c of cats();track c.id){<option [value]="c.id">{{c.nombre}}</option>}
+    </select>
+    <span>{{listaFiltrada().length}} vehículos</span>
+  </div>
+
+}
+
+@if(auth.esAdmin() && formularioAbierto()){
+<div class="dialog-backdrop" (click)="cancelar()"></div>
+<section class="panel vehicle-form-panel dialog-panel" role="dialog" aria-modal="true" aria-labelledby="titulo-form-vehiculo">
+  <div class="form-title">
+    <div>
+      <h2 id="titulo-form-vehiculo">{{edit?'Editar vehículo':'Agregar vehículo'}}</h2>
+      <p class="muted">Completa la información y selecciona una foto del carro.</p>
+    </div>
+    <button type="button" class="secondary dialog-close" (click)="cancelar()" aria-label="Cerrar formulario">✕</button>
+  </div>
+
+  @if(error()){<div class="alert error" role="alert">{{error()}}</div>}
+  @if(msg()){<div class="alert success" role="status">{{msg()}}</div>}
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="guardar()">
+    <label>Placa
+      <input formControlName="placa" placeholder="ABC-1234">
+      @if(form.controls.placa.touched&&form.controls.placa.invalid){<small class="field-error">Formato: ABC-1234</small>}
+    </label>
+    <label>Marca<input formControlName="marca" placeholder="Toyota"></label>
+    <label>Modelo<input formControlName="modelo" placeholder="Corolla"></label>
+    <label>Año<input type="number" formControlName="anio"></label>
+    <label>Color<input formControlName="color" placeholder="Blanco"></label>
+    <label>Tarifa diaria ($)<input type="number" step="0.01" formControlName="tarifaDiaria"></label>
+    <label>Estado
+      <select formControlName="estado">
+        <option>DISPONIBLE</option><option>MANTENIMIENTO</option><option>INACTIVO</option>
+      </select>
+    </label>
+    <label>Categoría
+      <select formControlName="categoriaId">
+        <option [ngValue]="0">Seleccione</option>
+        @for(c of cats();track c.id){<option [ngValue]="c.id">{{c.nombre}}</option>}
+      </select>
+      <button type="button" class="category-inline-trigger" (click)="categoriaNuevaAbierta.set(!categoriaNuevaAbierta())" [attr.aria-expanded]="categoriaNuevaAbierta()">＋ {{categoriaNuevaAbierta()?'Cerrar':'Crear categoría sin salir'}}</button>
+    </label>
+    @if(categoriaNuevaAbierta()){
+      <div class="span2 inline-category-create" [formGroup]="categoriaForm">
+        <strong>Nueva categoría</strong><p>Guárdala y quedará seleccionada en este vehículo. No perderás lo que has escrito.</p>
+        <div class="inline-category-fields"><label>Nombre<input formControlName="nombre" placeholder="Ej. SUV familiar"></label><label>Descripción<input formControlName="descripcion" placeholder="Espacioso y cómodo para viajes"></label></div>
+        <div class="actions"><button type="button" class="primary" [disabled]="categoriaGuardando() || categoriaForm.invalid" (click)="guardarCategoriaRapida()">{{categoriaGuardando()?'Guardando…':'Guardar y seleccionar'}}</button><button type="button" class="secondary" (click)="categoriaNuevaAbierta.set(false)">Volver al vehículo</button></div>
+      </div>
+    }
+    <label class="image-upload span2">Fotografías del vehículo (puedes seleccionar varias)
+      <input type="file" accept="image/jpeg,image/png,image/webp" multiple (change)="seleccionarFotos($event)">
+      <small>Elige varias fotografías. Puedes seleccionar cuál será la portada antes de guardar. JPG, PNG o WEBP, máximo 5 MB por foto.</small>
+      @if(archivo){<small class="upload-confirmation">✓ Portada nueva: {{archivo.name}}</small>}
+      @if(imagenesAdicionales.length){<small class="upload-confirmation">✓ {{imagenesAdicionales.length}} fotos adicionales seleccionadas.</small>}
+      @if(edit!==null){<small>Para cambiar la portada por una foto ya guardada, utiliza «Usar como portada» debajo de esa fotografía.</small>}
+    </label>
+
+    @if(fotosNuevasVista().length){
+      <div class="span2 photo-picker">
+        <h3>Fotografías seleccionadas</h3>
+        <p class="muted">Comprueba las imágenes y elige la portada antes de guardar.</p>
+        <div class="photo-picker-grid">
+          @for(foto of fotosNuevasVista();track foto.url;let i=$index){
+            <button type="button" class="photo-picker-option" [class.cover-choice]="archivo===foto.archivo" (click)="elegirNuevaPortada(i)" [attr.aria-pressed]="archivo===foto.archivo" [attr.aria-label]="'Elegir '+foto.archivo.name+' como portada'">
+              <img [src]="foto.url" [alt]="foto.archivo.name">
+              <span>{{archivo===foto.archivo?'★ Portada elegida':'Elegir como portada'}}</span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+    @if(preview()){
+      <div class="image-preview image-preview-edit">
+        <img [src]="preview()" alt="Vista previa del vehículo" (error)="errorFoto($event)">
+        @if(edit!==null){<button type="button" class="small danger" [disabled]="eliminandoFoto()" (click)="quitarPrincipal()">Eliminar imagen principal</button>}
+      </div>
+    }
+
+    @if(edit!==null && editandoImagenes().length){
+      <div class="span2">
+        <h3>Fotos actuales de la galería ({{editandoImagenes().length}})</h3>
+        <p class="muted">Puedes eliminar incluso las fotografías que no cargan. El botón está debajo de cada foto.</p>
+        <div class="manage-photos">
+          @for(foto of editandoImagenes();track $index;let i=$index){
+            <div class="manage-photo">
+              <img [src]="foto" [alt]="'Fotografía '+(i+1)+' de la galería'" (error)="errorFoto($event)">
+              <button type="button" class="small primary" [disabled]="eliminandoFoto()" (click)="establecerPortada(i)">★ Usar como portada</button>
+              <button type="button" class="small danger" [disabled]="eliminandoFoto()" (click)="quitarFoto(i)" [attr.aria-label]="'Eliminar fotografía '+(i+1)">Eliminar foto</button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+    <div class="actions">
+      <button class="primary" [disabled]="form.invalid || guardando()">{{guardando()?'Guardando…':edit?'Actualizar':'Guardar vehículo'}}</button>
+      <button type="button" class="secondary" (click)="cancelar()">Cancelar</button>
+    </div>
+  </form>
+</section>
+}
+
+@if(error()){<div class="alert error" role="alert">{{error()}}</div>}
+@if(msg()){<div class="alert success" role="status">{{msg()}}</div>}
+
+@if(!soloFormulario){
+<div class="vehicle-grid">
+  @for(x of listaFiltrada();track x.id){
+    <article class="vehicle-card modern" [class.user-catalog-card]="auth.esUser()">
+      <div class="vehicle-photo" (click)="abrirDetalle(x)" (keydown.enter)="abrirDetalle(x)" [attr.tabindex]="auth.esUser()?0:null" [attr.role]="auth.esUser()?'button':null" [attr.aria-label]="'Ver fotos y detalles de '+x.marca+' '+x.modelo">
+        @if(x.imagenUrl){
+          <img [src]="x.imagenUrl" [alt]="x.marca+' '+x.modelo+' color '+x.color" (error)="errorFoto($event)">
+        } @else {
+          <div class="no-photo">🚘</div>
+        }
+        <span class="photo-badge">{{x.estado}}</span>
+      </div>
+      @if(x.imagenes?.length){
+        <div class="vehicle-thumbnails" aria-label="Galería del vehículo">
+          @for(foto of x.imagenes || [];track foto;let i=$index){
+            <a [href]="foto" target="_blank" rel="noopener noreferrer" [attr.aria-label]="'Abrir fotografía '+(i+1)+' de '+x.marca+' '+x.modelo">
+              <img [src]="foto" [alt]="'Vista adicional '+(i+1)+' de '+x.marca+' '+x.modelo" loading="lazy" (error)="errorFoto($event)">
+            </a>
+          }
+        </div>
+      }
+      <div class="vehicle-body">
+        <span class="category">{{x.categoriaNombre}}</span>
+        <h3>{{x.marca}} {{x.modelo}}</h3>
+        <p>{{x.anio}} · {{x.color}} · {{x.placa}}</p>
+        <div class="price"><b>${{x.tarifaDiaria}}</b><span>/ día</span></div>
+        @if(auth.esAdmin()){
+          <div class="actions">
+            <button type="button" class="small" (click)="abrirDetalle(x)">Ver fotos</button>
+            <button type="button" class="small" (click)="editar(x)">Editar</button>
+            <button class="small danger" (click)="eliminar(x)">Eliminar</button>
+          </div>
+        } @else {
+          <div class="actions"><button type="button" class="small" (click)="abrirDetalle(x)">Ver fotografías</button><button type="button" class="primary reserve-link" (click)="reservarVehiculo(x)">Reservar</button></div>
+        }
+      </div>
+    </article>
+  } @empty {
+    <section class="empty-state"><div>🚗</div><h3>No hay vehículos disponibles</h3></section>
+  }
+</div>
+
+@if(vistaDetalle();as v){
+  <div class="admin-gallery-backdrop" (click)="cerrarDetalle()"></div>
+  <section class="admin-gallery-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-gallery-title">
+    <header class="admin-gallery-header"><div><span>GALERÍA DEL VEHÍCULO</span><h2 id="admin-gallery-title">{{v.marca}} {{v.modelo}}</h2><p>{{v.anio}} · {{v.color}} · {{v.placa}}</p></div><button type="button" class="secondary" (click)="cerrarDetalle()" aria-label="Cerrar galería">✕</button></header>
+    <div class="admin-gallery-main">
+      @if(fotosDetalle(v).length){
+        @for(foto of [fotosDetalle(v)[fotoDetalle()]]; track foto){<img [src]="foto" [alt]="'Fotografía '+(fotoDetalle()+1)+' de '+v.marca+' '+v.modelo" (error)="errorFoto($event)">}
+        @if(fotosDetalle(v).length>1){<button type="button" class="admin-gallery-prev" (click)="cambiarFoto(-1)" aria-label="Foto anterior">‹</button><button type="button" class="admin-gallery-next" (click)="cambiarFoto(1)" aria-label="Foto siguiente">›</button>}
+      }@else{<div class="no-photo">Sin fotografías disponibles</div>}
+    </div>
+    <div class="admin-gallery-thumbs">
+      @for(foto of fotosDetalle(v);track $index;let i=$index){<button type="button" [class.selected]="fotoDetalle()===i" (click)="elegirFoto(i)" [attr.aria-label]="'Ver foto '+(i+1)"><img [src]="foto" [alt]="'Miniatura '+(i+1)" (error)="errorFoto($event)"></button>}
+    </div>
+    <footer class="admin-gallery-footer"><span>{{fotosDetalle(v).length ? fotoDetalle()+1 : 0}} de {{fotosDetalle(v).length}} fotos</span>@if(auth.esAdmin()){<button type="button" class="primary" (click)="cerrarDetalle();editar(v)">Editar vehículo y fotografías</button>}@else{<button type="button" class="primary" (click)="reservarVehiculo(v)">Reservar este vehículo</button>}</footer>
+  </section>
+}
+
+}
